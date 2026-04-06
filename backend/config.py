@@ -11,9 +11,14 @@ class Config:
     DB_NAME = os.environ['DB_NAME']
     
     # 5paisa API
-    FIVEPAISA_API_KEY = os.getenv('FIVEPAISA_API_KEY', '')
-    FIVEPAISA_SECRET_KEY = os.getenv('FIVEPAISA_SECRET_KEY', '')
-    FIVEPAISA_CLIENT_ID = os.getenv('FIVEPAISA_CLIENT_ID', '')
+    FIVEPAISA_APP_NAME = os.getenv('FIVEPAISA_APP_NAME', '')
+    FIVEPAISA_APP_SOURCE = os.getenv('FIVEPAISA_APP_SOURCE', '')
+    FIVEPAISA_USER_ID = os.getenv('FIVEPAISA_USER_ID', '')
+    FIVEPAISA_USER_PASSWORD = os.getenv('FIVEPAISA_USER_PASSWORD', '')
+    FIVEPAISA_USER_KEY = os.getenv('FIVEPAISA_USER_KEY', '')
+    FIVEPAISA_ENCRYPTION_KEY = os.getenv('FIVEPAISA_ENCRYPTION_KEY', '')
+    FIVEPAISA_EMAIL = os.getenv('FIVEPAISA_EMAIL', 'user@example.com')
+    FIVEPAISA_DOB = os.getenv('FIVEPAISA_DOB', '19900101')
     
     # Telegram
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')

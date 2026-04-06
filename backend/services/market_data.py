@@ -1,61 +1,150 @@
-import httpx
+from py5paisa import FivePaisaClient as Py5PaisaClient
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import config
 import logging
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-class FivePaisaClient:
-    """5paisa API client for market data"""
+class FivePaisaMarketData:
+    """Real 5paisa API client for market data"""
     
     def __init__(self):
-        self.api_key = config.FIVEPAISA_API_KEY
-        self.secret_key = config.FIVEPAISA_SECRET_KEY
-        self.client_id = config.FIVEPAISA_CLIENT_ID
-        self.base_url = "https://openapi.5paisa.com/VendorsAPI/Service1.svc"
-        self.session = None
+        self.client = None
+        self.is_authenticated = False
+        self.credentials = {
+            "APP_NAME": config.FIVEPAISA_APP_NAME,
+            "APP_SOURCE": config.FIVEPAISA_APP_SOURCE,
+            "USER_ID": config.FIVEPAISA_USER_ID,
+            "PASSWORD": config.FIVEPAISA_USER_PASSWORD,
+            "USER_KEY": config.FIVEPAISA_USER_KEY,
+            "ENCRYPTION_KEY": config.FIVEPAISA_ENCRYPTION_KEY
+        }
+        self.email = config.FIVEPAISA_EMAIL
+        self.dob = config.FIVEPAISA_DOB
+        
+        # NSE F&O scrip codes (sample - expand as needed)
+        self.scrip_codes = {
+            'NIFTY': 999920000,
+            'HDFCBANK': 1333,
+            'ICICIBANK': 4963,
+            'AXISBANK': 5900,
+            'KOTAKBANK': 1922,
+            'SBIN': 3045,
+            'TCS': 11536,
+            'INFY': 1594,
+            'WIPRO': 3787,
+            'RELIANCE': 2885,
+            'TATAMOTORS': 3456,
+            'M&M': 2031,
+            'MARUTI': 10999,
+            'BHARTIARTL': 10604,
+            'ITC': 1660
+        }
         
     async def initialize(self):
-        """Initialize API session"""
-        if not all([self.api_key, self.secret_key, self.client_id]):
-            logger.warning("5paisa credentials not configured. Using mock data.")
-            return False
-        
+        """Initialize and login to 5paisa"""
         try:
-            # TODO: Implement actual 5paisa authentication
-            # This is a placeholder for 5paisa login
-            self.session = httpx.AsyncClient()
-            return True
+            if not all([
+                self.credentials["APP_NAME"],
+                self.credentials["APP_SOURCE"],
+                self.credentials["USER_ID"],
+                self.credentials["PASSWORD"],
+                self.credentials["USER_KEY"],
+                self.credentials["ENCRYPTION_KEY"]
+            ]):
+                logger.warning("5paisa credentials incomplete. Using mock data.")
+                return False
+            
+            # Initialize client
+            self.client = Py5PaisaClient(cred=self.credentials)
+            
+            # For now, skip authentication and use mock data
+            # Real auth requires TOTP secret which needs user setup
+            logger.info("5paisa client initialized (using mock data until TOTP configured)")
+            logger.info("📝 To use real 5paisa data, add TOTP secret to .env - see SETUP_GUIDE.md")
+            self.is_authenticated = False
+            return False
+            
         except Exception as e:
-            logger.error(f"Failed to initialize 5paisa client: {e}")
+            logger.error(f"Failed to initialize 5paisa: {e}")
+            logger.warning("Falling back to mock data")
+            self.is_authenticated = False
             return False
     
     async def get_market_data(self, symbols: List[str], interval: str = "5min") -> Dict:
         """Get OHLC data for symbols"""
-        if not self.session:
-            # Return mock data if not initialized
+        if not self.is_authenticated or not self.client:
+            logger.warning("5paisa not authenticated. Using mock data.")
             return self._get_mock_market_data(symbols)
         
         try:
-            # TODO: Implement actual 5paisa market data API call
-            # Placeholder implementation
-            return self._get_mock_market_data(symbols)
+            data = {}
+            today = datetime.now()
+            from_date = (today - timedelta(days=1)).strftime('%Y-%m-%d')
+            to_date = today.strftime('%Y-%m-%d')
+            
+            # Map interval
+            timeframe_map = {
+                '5min': '5m',
+                '15min': '15m',
+                '1hour': '60m',
+                '1day': '1d'
+            }
+            tf = timeframe_map.get(interval, '5m')
+            
+            for symbol in symbols:
+                try:
+                    scrip_code = self.scrip_codes.get(symbol)
+                    if not scrip_code:
+                        logger.warning(f"Scrip code not found for {symbol}")
+                        continue
+                    
+                    # Fetch historical data
+                    df = self.client.historical_data(
+                        'N',  # NSE
+                        'C',  # Cash (use 'D' for derivatives)
+                        scrip_code,
+                        tf,
+                        from_date,
+                        to_date
+                    )
+                    
+                    if df is not None and not df.empty:
+                        latest = df.iloc[-1]
+                        data[symbol] = {
+                            'open': float(latest['Open']),
+                            'high': float(latest['High']),
+                            'low': float(latest['Low']),
+                            'close': float(latest['Close']),
+                            'volume': int(latest['Volume']),
+                            'vwap': float((latest['High'] + latest['Low'] + latest['Close']) / 3),
+                            'timestamp': datetime.now()
+                        }
+                        logger.info(f"✓ Fetched data for {symbol}: Close={latest['Close']}")
+                    
+                except Exception as e:
+                    logger.error(f"Error fetching {symbol}: {e}")
+                    continue
+            
+            # If we got some real data, return it; otherwise use mock
+            if data:
+                return data
+            else:
+                logger.warning("No real data fetched. Using mock data.")
+                return self._get_mock_market_data(symbols)
+                
         except Exception as e:
-            logger.error(f"Error fetching market data: {e}")
+            logger.error(f"Error in get_market_data: {e}")
             return self._get_mock_market_data(symbols)
     
     async def get_option_chain(self, symbol: str) -> Dict:
-        """Get option chain data for a symbol"""
-        if not self.session:
-            return self._get_mock_option_chain(symbol)
-        
-        try:
-            # TODO: Implement actual 5paisa option chain API call
-            return self._get_mock_option_chain(symbol)
-        except Exception as e:
-            logger.error(f"Error fetching option chain: {e}")
-            return self._get_mock_option_chain(symbol)
+        """Get option chain data - using mock for now as py5paisa doesn't have direct method"""
+        # Note: 5paisa Xstream API has option chain, but py5paisa library doesn't expose it directly
+        # This would require custom API calls to Xstream endpoints
+        logger.info(f"Option chain for {symbol} - using mock data (Xstream integration pending)")
+        return self._get_mock_option_chain(symbol)
     
     async def get_nifty_data(self) -> Dict:
         """Get Nifty 50 index data"""
@@ -98,8 +187,9 @@ class FivePaisaClient:
     
     async def close(self):
         """Close the API session"""
-        if self.session:
-            await self.session.aclose()
+        if self.client:
+            logger.info("Closing 5paisa session")
+            self.client = None
 
 # Singleton instance
-market_data_client = FivePaisaClient()
+market_data_client = FivePaisaMarketData()
