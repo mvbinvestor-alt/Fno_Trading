@@ -57,15 +57,21 @@ class FivePaisaMarketData:
                 logger.warning("5paisa credentials incomplete. Using mock data.")
                 return False
             
-            # Initialize client
+            # Initialize client with your actual credentials
+            logger.info("Connecting to 5paisa with your credentials...")
             self.client = Py5PaisaClient(cred=self.credentials)
             
-            # For now, skip authentication and use mock data
-            # Real auth requires TOTP secret which needs user setup
-            logger.info("5paisa client initialized (using mock data until TOTP configured)")
-            logger.info("📝 To use real 5paisa data, add TOTP secret to .env - see SETUP_GUIDE.md")
-            self.is_authenticated = False
-            return False
+            # Try to get client code to verify connection
+            try:
+                client_code = self.client.get_client_code()
+                logger.info(f"✅ SUCCESS! Connected to 5paisa. Client Code: {client_code}")
+                self.is_authenticated = True
+                return True
+            except Exception as auth_error:
+                logger.error(f"5paisa authentication failed: {auth_error}")
+                logger.warning("Falling back to mock data")
+                self.is_authenticated = False
+                return False
             
         except Exception as e:
             logger.error(f"Failed to initialize 5paisa: {e}")
