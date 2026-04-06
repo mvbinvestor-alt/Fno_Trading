@@ -323,7 +323,7 @@ async def get_system_status():
     """Get overall system status"""
     try:
         # Check 5paisa connection
-        fivepaisa_status = "configured" if config.FIVEPAISA_API_KEY else "not_configured"
+        fivepaisa_status = "configured" if config.FIVEPAISA_USER_KEY else "not_configured"
         
         # Check Telegram
         telegram_status = "configured" if config.TELEGRAM_BOT_TOKEN and config.TELEGRAM_CHAT_ID else "not_configured"
