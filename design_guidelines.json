@@ -1,0 +1,90 @@
+{
+  "theme_and_archetype": {
+    "theme": "LIGHT",
+    "archetype": "4 (Swiss & High-Contrast)",
+    "vibe": "Objective, rigid, authoritative, function-first, high data density. The dashboard must feel like a modern, hyper-fast Bloomberg terminal."
+  },
+  "colors": {
+    "background": "#F8FAFC",
+    "foreground": "#0F172A",
+    "card": "#FFFFFF",
+    "card_foreground": "#0F172A",
+    "border": "#E2E8F0",
+    "primary": "#0F172A",
+    "primary_foreground": "#FFFFFF",
+    "muted": "#F1F5F9",
+    "muted_foreground": "#64748B",
+    "accent": "#F1F5F9",
+    "accent_foreground": "#0F172A",
+    "destructive": "#EF4444",
+    "destructive_foreground": "#FFFFFF",
+    "success": "#10B981",
+    "success_foreground": "#FFFFFF",
+    "warning": "#F59E0B",
+    "warning_foreground": "#FFFFFF"
+  },
+  "typography": {
+    "headings_font": "Manrope",
+    "body_font": "IBM Plex Sans",
+    "monospace_font": "IBM Plex Mono",
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl tracking-tight font-black",
+      "h2": "text-2xl sm:text-3xl tracking-tight font-extrabold",
+      "h3": "text-lg sm:text-xl tracking-tight font-bold",
+      "h4": "text-base sm:text-lg tracking-tight font-bold",
+      "body": "text-sm sm:text-base leading-relaxed",
+      "small": "text-xs tracking-wider uppercase font-semibold",
+      "data_numbers": "font-mono text-sm sm:text-base font-medium tracking-tight"
+    },
+    "rules": [
+      "Headings must use Manrope, avoid Inter.",
+      "All trading figures, prices, targets, and P&L MUST use IBM Plex Mono for vertical alignment.",
+      "Overlines/Labels must be uppercase, tiny, wide spacing (tracking-[0.2em]).",
+      "Color is function: Only use Green/Red for financial direction. Keep 95% of text slate-900 or slate-500."
+    ]
+  },
+  "layout_and_spacing": {
+    "strategy": "MODE B: THE CONTROL ROOM GRID",
+    "grid_classes": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
+    "spacing_scale": "Tight and dense. Use p-4 for internal card padding.",
+    "border_radius": "rounded-md (6px) max. Avoid pill shapes. Emphasize sharp, technical edges.",
+    "alignment_rules": "Left-align all text and forms. Right-align numeric columns in tables (Prices, P&L)."
+  },
+  "surfaces_and_themes": {
+    "cards": "Flat background (bg-white), 1px solid border (border-slate-200), NO shadows. On hover: border darkens slightly, no lift.",
+    "header": "Solid white background, 1px border bottom. Must include brand name and system status.",
+    "panels": "GRID BORDERS strategy. Expose the skeleton. Containers should feel like technical partitions.",
+    "glassmorphism": "Avoid glassmorphism. It creates visual noise in data-heavy environments."
+  },
+  "components": {
+    "tables": "Use Shadcn Table. Dense rows (py-2), right-aligned numbers. Use IBM Plex Mono for data cells.",
+    "badges": "Use for LONG/SHORT signals. Square or rounded-sm. HIGH CONTRAST (bg-emerald-500 text-white for LONG, bg-red-500 text-white for SHORT).",
+    "charts": "Recharts. Avoid unnecessary grids. Use stark 1px lines. Color code positive equity curve as emerald, negative as red.",
+    "buttons": "Shadcn Button. Primary buttons are stark slate-900. Action buttons for trade execution should use primary unless destructive.",
+    "forms": "Use Shadcn Select/Input for Alert Configuration. Left-aligned, tight spacing."
+  },
+  "motion_and_interactions": {
+    "animations": "Minimalist. Avoid bouncy effects.",
+    "hover_states": "Subtle background shifts (bg-slate-50) for table rows. Text color must remain high contrast.",
+    "transitions": "transition-colors duration-150 ease-in-out"
+  },
+  "icons_and_assets": {
+    "library": "@phosphor-icons/react",
+    "installation": "yarn add @phosphor-icons/react",
+    "usage": "Use 'regular' or 'bold' weights. Avoid duotone to maintain the technical, high-contrast feel."
+  },
+  "testing_and_accessibility": {
+    "data_testid": "MANDATORY on all interactive elements (buttons, inputs, tabs, row actions). Use kebab-case, role-based (e.g., 'signal-long-button', 'backtest-run-button').",
+    "contrast": "Ensure text over Red/Green badges has sufficient contrast (use white text). Avoid grey-on-grey."
+  },
+  "instructions_to_main_agent": [
+    "This is a high-density, production-grade trading dashboard. Do not use decorative gradients or soft shadows.",
+    "Color has extreme semantic meaning here. NEVER use Red or Green for decorative purposes. Red = Loss/Short/Bearish. Green = Profit/Long/Bullish.",
+    "Implement 'IBM Plex Mono' for ALL numeric data (prices, ratios, scores, P&L) so digits align perfectly vertically.",
+    "Follow 'The Control Room' grid: dense, fully utilized screen real-estate, tight gaps.",
+    "Use @phosphor-icons/react for all icons to maintain a crisp, technical look.",
+    "Ensure all major interactive elements have data-testid attributes.",
+    "Since this is an Indian F&O system, consider UI components to cleanly display options data (e.g., Strike, CE/PE, OI, Volume) in a highly scannable table format."
+  ],
+  "image_urls": {}
+}
